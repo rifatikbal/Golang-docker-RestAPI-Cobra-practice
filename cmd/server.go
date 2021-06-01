@@ -13,12 +13,27 @@ import (
 	"net/http"
 )
 
+
+
 type server_config struct {
-  port string
+  Port string //`mapstructure:"port"`
+}
+
+type db_config struct {
+	H_name string //`mapstructure:"hostname"`
+	Usr string //`mapstructure: "user"`
+	Password string // `mapstructure: "password"`
+	Database_name string // `mapstructure:"database_name"`
+	Port string //`mapstructure:"port"`
 }
 
 
-var  c server_config
+
+
+var(
+  servrcnfig server_config
+  dbcnfig db_config
+  )
 
 
 var serverCmd = &cobra.Command{
@@ -31,7 +46,7 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		//fmt.Println("server called")
+
 		connect()
 
 		r := chi.NewRouter()
@@ -46,7 +61,7 @@ to quickly create a Cobra application.`,
 
 		r.Delete("/student/{id}", Delete_Student_with_ID)
 
-		err := http.ListenAndServe(":"+c.port, r)
+		err := http.ListenAndServe(":"+servrcnfig.Port, r)
 
 		//changin variable to config
 		if err != nil {
@@ -69,7 +84,9 @@ type STUDENT_INFO struct {
 
 func connect() {
 
-	dsn := "host=database user=admin password=secret dbname=database_name port=5432 sslmode=disable TimeZone=Asia/Shanghai"
+	//dsn := "host=database user=admin password=secret dbname=database_name port=5432 sslmode=disable TimeZone=Asia/Shanghai"
+	dsn:=fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Shanghai",dbcnfig.H_name,dbcnfig.Usr,dbcnfig.Password,dbcnfig.Database_name,dbcnfig.Port)
+	fmt.Println(dsn)
 	d, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
@@ -189,7 +206,39 @@ func Get_Student_With_ID(w http.ResponseWriter, r *http.Request) {
 
 func init() {
 	rootCmd.AddCommand(serverCmd)
+	cobra.OnInitialize(initconfig1)
+	cobra.OnInitialize(initconfig2)
+}
 
+
+func  initconfig1()  {
+
+    viper.SetConfigName("conf1")
+    viper.AddConfigPath(".")
+    viper.AutomaticEnv()
+	viper.SetConfigType("yml")
+
+	if err := viper.ReadInConfig(); err != nil {
+		fmt.Printf("Error reading config file, %s", err)
+	}
+
+	viper.Unmarshal(&dbcnfig)
+
+	fmt.Println("init1start")
+
+	fmt.Println(dbcnfig.H_name)
+	fmt.Println(dbcnfig.Password)
+	fmt.Println(dbcnfig.Port)
+	fmt.Println(dbcnfig.Usr)
+
+
+	fmt.Println("init1end")
+
+
+}
+
+func initconfig2()  {
+	fmt.Println("init2start")
 	viper.SetConfigName("conf")
 	viper.AddConfigPath(".")
 	viper.AutomaticEnv()
@@ -198,14 +247,12 @@ func init() {
 	if err := viper.ReadInConfig(); err != nil {
 		fmt.Printf("Error reading config file, %s", err)
 	}
-	c.port=viper.GetString("port")
+	//servrcnfig.Port=viper.GetString("port")
 
-/*	err:=viper.Unmarshal(&c)
+	viper.Unmarshal(&servrcnfig)
+	fmt.Println("init1")
+	fmt.Println(servrcnfig.Port)
 
-	if err!=nil{
-		panic(err)
-	}*/
-
-
+	fmt.Println("init2end")
 
 }

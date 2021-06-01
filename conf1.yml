@@ -1,0 +1,5 @@
+h_name: "database"
+usr: "admin"
+password: "secret"
+database_name: "database_name"
+port: "5432"
