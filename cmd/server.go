@@ -206,4 +206,9 @@ func init() {
 			panic(err)
 		}*/
 
+	mul(5, 7)
+}
+
+func mul(x, y int) int {
+	return x * y
 }
