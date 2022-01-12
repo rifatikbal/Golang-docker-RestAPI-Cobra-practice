@@ -1,10 +1,8 @@
-
 package cmd
 
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/go-chi/chi/v5"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"gorm.io/driver/postgres"
@@ -14,12 +12,10 @@ import (
 )
 
 type server_config struct {
-  port string
+	port string
 }
 
-
-var  c server_config
-
+var c server_config
 
 var serverCmd = &cobra.Command{
 	Use:   "myapi",
@@ -184,8 +180,9 @@ func Get_Student_With_ID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-
-
+func calc(x int, y int) int {
+	return x + y
+}
 
 func init() {
 	rootCmd.AddCommand(serverCmd)
@@ -198,14 +195,14 @@ func init() {
 	if err := viper.ReadInConfig(); err != nil {
 		fmt.Printf("Error reading config file, %s", err)
 	}
-	c.port=viper.GetString("port")
+	c.port = viper.GetString("port")
 
-/*	err:=viper.Unmarshal(&c)
+	fmt.Println(calc(10, 12))
 
-	if err!=nil{
-		panic(err)
-	}*/
+	/*	err:=viper.Unmarshal(&c)
 
-
+		if err!=nil{
+			panic(err)
+		}*/
 
 }
